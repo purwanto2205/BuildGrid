@@ -9,13 +9,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -28,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -43,14 +46,14 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             BuildGridTheme {
-                Surface(
+                Surface (
                     modifier = Modifier
                         .fillMaxSize()
                         .statusBarsPadding(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    TopicGrid(modifier = Modifier
-                        .padding(
+                    TopicGrid(
+                        modifier = Modifier.padding(
                             start = dimensionResource(R.dimen.padding_small),
                             top = dimensionResource(R.dimen.padding_small),
                             end = dimensionResource(R.dimen.padding_small)
@@ -64,37 +67,43 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun TopicGrid(modifier: Modifier = Modifier) {
-    LazyVerticalGrid (
+    val layoutDirection = LocalLayoutDirection.current
+    LazyVerticalGrid(
         columns = GridCells.Fixed(2),
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
+        modifier = modifier.padding(
+            start = WindowInsets.safeDrawing.asPaddingValues()
+                .calculateStartPadding(layoutDirection),
+            end = WindowInsets.safeDrawing.asPaddingValues()
+                .calculateStartPadding(layoutDirection)
+        ),
         horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
-        modifier = modifier
+        verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small)),
     ) {
         items(DataSource.topics) { topic ->
-            TopicCard(topic = topic)
+            TopicCard(topic)
         }
     }
 }
 
 @Composable
-fun TopicCard(topic: Topic, modifier: Modifier = Modifier) {
+fun TopicCard(topic: Topic) {
     Card {
         Row {
             Box {
                 Image(
-                    painter = painterResource(topic.imageResourceId),
-                    contentDescription = stringResource(topic.stringResourceId),
-                    modifier = modifier
-                        .size(68.dp, height = 68.dp)
+                    painter = painterResource(id = topic.imageRes),
+                    contentDescription = stringResource(id = topic.name),
+                    modifier = Modifier
+                        .size(width = 68.dp, height = 68.dp)
                         .aspectRatio(1f),
                     contentScale = ContentScale.Crop
                 )
             }
+
             Column {
                 Text(
-                    stringResource(topic.stringResourceId),
+                    text = stringResource(id = topic.name),
                     style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 1,
                     modifier = Modifier.padding(
                         start = dimensionResource(R.dimen.padding_medium),
                         top = dimensionResource(R.dimen.padding_medium),
@@ -102,21 +111,19 @@ fun TopicCard(topic: Topic, modifier: Modifier = Modifier) {
                         bottom = dimensionResource(R.dimen.padding_small)
                     )
                 )
-                Spacer(Modifier.width(8.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row (
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Icon(
                         painter = painterResource(R.drawable.ic_grain),
                         contentDescription = null,
                         modifier = Modifier
                             .padding(start = dimensionResource(R.dimen.padding_medium))
                     )
-                    Spacer(Modifier.width(8.dp))
                     Text(
-                        topic.count.toString(),
+                        text = topic.availableCourse.toString(),
                         style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(
-                            start = dimensionResource(R.dimen.padding_medium)
-                        )
+                        modifier = Modifier.padding(start = dimensionResource(R.dimen.padding_small))
                     )
                 }
             }
@@ -128,14 +135,14 @@ fun TopicCard(topic: Topic, modifier: Modifier = Modifier) {
 @Composable
 fun AppPreview() {
     BuildGridTheme {
-        Surface(
+        Surface (
             modifier = Modifier
                 .fillMaxSize()
                 .statusBarsPadding(),
             color = MaterialTheme.colorScheme.background
         ) {
-            TopicGrid(modifier = Modifier
-                .padding(
+            TopicGrid(
+                modifier = Modifier.padding(
                     start = dimensionResource(R.dimen.padding_small),
                     top = dimensionResource(R.dimen.padding_small),
                     end = dimensionResource(R.dimen.padding_small)
@@ -144,3 +151,4 @@ fun AppPreview() {
         }
     }
 }
+

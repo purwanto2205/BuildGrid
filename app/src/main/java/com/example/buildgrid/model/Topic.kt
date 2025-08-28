@@ -4,8 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 
 class Topic(
-    val stringResourceId: Int,
-    val count: Int,
-   val imageResourceId: Int
-
+    @StringRes val name: Int,
+    val availableCourse: Int,
+    @DrawableRes val imageRes: Int
 )
